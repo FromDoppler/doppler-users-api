@@ -7,7 +7,8 @@ namespace Doppler.UsersApi.Model
 {
     public class Features
     {
-        public bool ContactPolicies { get; set; }
+        [Obsolete("This feature is available for all users. Consider remotion related to [this ticket](https://makingsense.atlassian.net/browse/DOP-1096)")]
+        public bool ContactPolicies { get; } = true;
 
         public bool BigQuery { get; set; }
 
