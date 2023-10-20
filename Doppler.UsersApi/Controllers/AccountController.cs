@@ -1,6 +1,5 @@
 using Doppler.UsersApi.Infrastructure;
 using Doppler.UsersApi.Model;
-using Doppler.UsersApi.Services;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,18 +16,21 @@ namespace Doppler.UsersApi.Controllers
         private readonly ILogger _logger;
         private readonly IAccountRepository _accountRepository;
         private readonly IValidator<ContactInformation> _validator;
-        private readonly AccountPlansService _accountPlansService;
+        private readonly IAccountPlansRepository _accountPlansRepository;
+        private readonly IIntegrationsRepository _integrationsRepository;
 
         public AccountController(
             ILogger<FeatureController> logger,
             IAccountRepository accountRepository,
             IValidator<ContactInformation> validator,
-            AccountPlansService accountPlansService)
+            IAccountPlansRepository accountPlansRepository,
+            IIntegrationsRepository integrationsRepository)
         {
             _logger = logger;
             _accountRepository = accountRepository;
             _validator = validator;
-            _accountPlansService = accountPlansService;
+            _accountPlansRepository = accountPlansRepository;
+            _integrationsRepository = integrationsRepository;
         }
 
         [HttpGet("/accounts/{accountName}/contact-information")]
@@ -63,16 +65,33 @@ namespace Doppler.UsersApi.Controllers
         [HttpGet("/accounts/{accountName}/plan")]
         public async Task<IActionResult> GetPlanInformation([FromRoute] string accountName)
         {
-            try
-            {
-                var planInformation = await _accountPlansService.GetPlanInformation(accountName);
+            var planInformation = await _accountPlansRepository.GetPlanInformation(accountName);
 
-                return new OkObjectResult(planInformation);
-            }
-            catch (KeyNotFoundException)
+            if (planInformation == null)
             {
                 return new NotFoundResult();
             }
+
+            var integrations = await _integrationsRepository.GetIntegrationsStatusByUserAccount(accountName);
+
+            planInformation.Integrations = GetActiveIntegrationNames(integrations);
+
+            return new OkObjectResult(planInformation);
+        }
+
+        private string[] GetActiveIntegrationNames(Dictionary<string, string> integrations)
+        {
+            var integrationsList = new List<string>();
+            foreach (var item in integrations)
+            {
+                if (item.Value.ToLower() == "connected")
+                {
+                    //Remove status
+                    integrationsList.Add(item.Key[..^"status".Length]);
+                }
+            }
+
+            return integrationsList.ToArray();
         }
     }
 }

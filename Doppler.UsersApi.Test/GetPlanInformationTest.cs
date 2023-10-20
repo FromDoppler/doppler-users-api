@@ -1,6 +1,5 @@
 using Doppler.UsersApi.Infrastructure;
 using Doppler.UsersApi.Model;
-using Doppler.UsersApi.Services;
 using Doppler.UsersApi.Test.Utils;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -43,7 +42,6 @@ namespace Doppler.UsersApi.Test
             {
                 builder.ConfigureTestServices(services =>
                 {
-                    services.AddSingleton<AccountPlansService>();
                     services.AddSingleton(accountPlansRepositoryMock.Object);
                     services.AddSingleton(integrationsRepositoryMock.Object);
                 });
@@ -102,7 +100,6 @@ namespace Doppler.UsersApi.Test
             {
                 builder.ConfigureTestServices(services =>
                 {
-                    services.AddSingleton<AccountPlansService>();
                     services.AddSingleton(accountPlansRepositoryMock.Object);
                     services.AddSingleton(integrationsRepositoryMock.Object);
                 });
