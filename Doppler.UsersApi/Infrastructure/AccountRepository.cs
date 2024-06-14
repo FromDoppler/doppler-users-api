@@ -91,25 +91,23 @@ WHERE
             using var connection = _connectionFactory.GetConnection();
             var result = await connection.QueryAsync<BasicUserInformation>(@"
 SELECT ua.Email,
-	ua.FirstName,
-	ua.LastName,
-	ci.UTCCreationDate AS InvitationDate,
-	ci.InviteStatus AS InvitationStatus
+    ua.FirstName,
+    ua.LastName,
+    ci.UTCCreationDate AS InvitationDate,
+    ci.InviteStatus AS InvitationStatus
 FROM [dbo].[User] u
-JOIN [dbo].[UserXUserAccount] uxua 
-	ON u.IdUser = uxua.IdUser
+JOIN [dbo].[UserXUserAccount] uxua
+    ON u.IdUser = uxua.IdUser
 JOIN [dbo].[UserAccount] ua
-	ON ua.IdUserAccount = uxua.IdUserAccount
-LEFT JOIN [dbo].[ColaborationInvites] ci 
-	ON ci.IdUserAccount = uxua.IdUserAccount
-		AND ci.IdUser = uxua.IdUser
+    ON ua.IdUserAccount = uxua.IdUserAccount
+LEFT JOIN [dbo].[ColaborationInvites] ci
+    ON ci.IdUserAccount = uxua.IdUserAccount
+        AND ci.IdUser = uxua.IdUser
 WHERE u.Email = @email
-	AND uxua.[Type] = @userType",
+    AND uxua.[Type] = @userType",
             new { email, userType });
 
-            var algo = result.ToList();
-
-            return algo;
+            return result.ToList();
         }
     }
 }
