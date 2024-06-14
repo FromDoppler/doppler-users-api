@@ -2,6 +2,8 @@ using Dapper;
 using Doppler.UsersApi.Model;
 using System.Threading.Tasks;
 using Doppler.UsersApi.Encryption;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Doppler.UsersApi.Infrastructure
 {
@@ -82,6 +84,32 @@ WHERE
                     @encryptedanswer = contactInformation.AnswerSecurityQuestion == null ? "" : _encryptionService.EncryptAES256(contactInformation.AnswerSecurityQuestion.ToUpper()),
                     @email = accountName
                 });
+        }
+
+        public async Task<List<BasicUserInformation>> GetRelatedUsers(string email, int userType)
+        {
+            using var connection = _connectionFactory.GetConnection();
+            var result = await connection.QueryAsync<BasicUserInformation>(@"
+SELECT ua.Email,
+	ua.FirstName,
+	ua.LastName,
+	ci.UTCCreationDate AS InvitationDate,
+	ci.InviteStatus AS InvitationStatus
+FROM [dbo].[User] u
+JOIN [dbo].[UserXUserAccount] uxua 
+	ON u.IdUser = uxua.IdUser
+JOIN [dbo].[UserAccount] ua
+	ON ua.IdUserAccount = uxua.IdUserAccount
+LEFT JOIN [dbo].[ColaborationInvites] ci 
+	ON ci.IdUserAccount = uxua.IdUserAccount
+		AND ci.IdUser = uxua.IdUser
+WHERE u.Email = @email
+	AND uxua.[Type] = @userType",
+            new { email, userType });
+
+            var algo = result.ToList();
+
+            return algo;
         }
     }
 }
