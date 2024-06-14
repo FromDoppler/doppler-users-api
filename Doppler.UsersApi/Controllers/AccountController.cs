@@ -4,6 +4,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Doppler.UsersApi.Controllers
@@ -60,12 +61,12 @@ namespace Doppler.UsersApi.Controllers
         {
             var usersInformation = await _accountRepository.GetRelatedUsers(accountName, userType);
 
-            if (usersInformation == null)
+            if (usersInformation.Any())
             {
-                return new NotFoundResult();
+                return new OkObjectResult(usersInformation);
             }
 
-            return new OkObjectResult(usersInformation);
+            return new NotFoundResult();
         }
     }
 }
