@@ -54,5 +54,18 @@ namespace Doppler.UsersApi.Controllers
 
             return new OkObjectResult("Successfully");
         }
+
+        [HttpGet("/accounts/{accountName}/related-users/{userType}")]
+        public async Task<IActionResult> GetRelatedUsersByType(string accountName, int userType)
+        {
+            var usersInformation = await _accountRepository.GetRelatedUsers(accountName, userType);
+
+            if (usersInformation == null)
+            {
+                return new NotFoundResult();
+            }
+
+            return new OkObjectResult(usersInformation);
+        }
     }
 }
