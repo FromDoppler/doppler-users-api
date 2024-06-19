@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Doppler.UsersApi.Controllers
@@ -57,7 +58,7 @@ namespace Doppler.UsersApi.Controllers
         }
 
         [HttpGet("/accounts/{accountName}/related-users/{userType}")]
-        public async Task<IActionResult> GetRelatedUsersByType(string accountName, int userType)
+        public async Task<IActionResult> GetRelatedUsersByType(string accountName, int userType, CancellationToken cancellationToken = default)
         {
             var usersInformation = await _accountRepository.GetRelatedUsers(accountName, userType);
 
