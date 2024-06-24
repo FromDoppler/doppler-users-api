@@ -57,10 +57,10 @@ namespace Doppler.UsersApi.Controllers
             return new OkObjectResult("Successfully");
         }
 
-        [HttpGet("/accounts/{accountName}/related-users/{userType}")]
-        public async Task<IActionResult> GetRelatedUsersByType(string accountName, int userType, CancellationToken cancellationToken = default)
+        [HttpGet("/accounts/{accountName}/user-invitations")]
+        public async Task<IActionResult> GetUserInvitations(string accountName, CancellationToken cancellationToken = default)
         {
-            var usersInformation = await _accountRepository.GetRelatedUsers(accountName, userType);
+            var usersInformation = await _accountRepository.GetUserInvitations(accountName);
 
             if (usersInformation.Any())
             {
