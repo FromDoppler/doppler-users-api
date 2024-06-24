@@ -2,6 +2,9 @@ using Dapper;
 using Doppler.UsersApi.Model;
 using System.Threading.Tasks;
 using Doppler.UsersApi.Encryption;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 
 namespace Doppler.UsersApi.Infrastructure
 {
@@ -82,6 +85,26 @@ WHERE
                     @encryptedanswer = contactInformation.AnswerSecurityQuestion == null ? "" : _encryptionService.EncryptAES256(contactInformation.AnswerSecurityQuestion.ToUpper()),
                     @email = accountName
                 });
+        }
+
+        public async Task<List<InvitationInformation>> GetUserInvitations(string email, CancellationToken cancellationToken = default)
+        {
+            using var connection = _connectionFactory.GetConnection();
+            var result = await connection.QueryAsync<InvitationInformation>(@"
+SELECT ci.Email,
+    ua.FirstName,
+    ua.LastName,
+    ci.UTCCreationDate AS InvitationDate,
+    ci.InviteStatus AS InvitationStatus
+FROM [dbo].[User] u
+JOIN [dbo].[ColaborationInvites] ci
+    ON ci.iduser = u.idUser
+LEFT JOIN [dbo].[UserAccount] ua
+    ON ci.IdUserAccount = ua.IdUserAccount
+WHERE u.Email = @email",
+            new { email });
+
+            return result.ToList();
         }
     }
 }

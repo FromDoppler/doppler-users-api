@@ -4,6 +4,8 @@ using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Doppler.UsersApi.Controllers
@@ -53,6 +55,19 @@ namespace Doppler.UsersApi.Controllers
             await _accountRepository.UpdateContactInformation(accountName, contactInformation);
 
             return new OkObjectResult("Successfully");
+        }
+
+        [HttpGet("/accounts/{accountName}/user-invitations")]
+        public async Task<IActionResult> GetUserInvitations(string accountName, CancellationToken cancellationToken = default)
+        {
+            var usersInformation = await _accountRepository.GetUserInvitations(accountName);
+
+            if (usersInformation.Any())
+            {
+                return new OkObjectResult(usersInformation);
+            }
+
+            return new NotFoundResult();
         }
     }
 }
