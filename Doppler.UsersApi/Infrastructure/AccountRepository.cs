@@ -10,6 +10,7 @@ namespace Doppler.UsersApi.Infrastructure
 {
     public class AccountRepository : IAccountRepository
     {
+        private const string DateFormat = "yyyy-MM-dd HH:mm:ss";
         private readonly IDatabaseConnectionFactory _connectionFactory;
         private readonly IEncryptionService _encryptionService;
         public AccountRepository(IDatabaseConnectionFactory connectionFactory, IEncryptionService encryptionService)
@@ -91,10 +92,12 @@ WHERE
         {
             using var connection = _connectionFactory.GetConnection();
             var result = await connection.QueryAsync<InvitationInformation>(@"
-SELECT ci.Email,
+SELECT  ci.IdUser,
+    ci.Email,
     ua.FirstName,
     ua.LastName,
     ci.UTCCreationDate AS InvitationDate,
+    ci.UTCExpirationDate AS ExpirationDate,
     ci.InviteStatus AS InvitationStatus
 FROM [dbo].[User] u
 JOIN [dbo].[ColaborationInvites] ci
@@ -105,6 +108,42 @@ WHERE u.Email = @email",
             new { email });
 
             return result.ToList();
+        }
+
+        public async Task CreateCollaborationInvite(CollaborationInvite invite)
+        {
+            using var connection = _connectionFactory.GetConnection();
+
+            await connection.ExecuteAsync(@"
+INSERT INTO [dbo].[ColaborationInvites]
+VALUES(@idUser, @email, NULL, @creationDate, @expirationDate, NULL, @status,0)",
+            new
+            {
+                @idUser = invite.IdUser,
+                @email = invite.Email,
+                @creationDate = invite.CreationDate.ToString(DateFormat),
+                @expirationDate = invite.ExpirationDate.ToString(DateFormat),
+                @status = invite.InviteStatus,
+            });
+        }
+
+        public async Task UpdateCollaborationInvite(CollaborationInvite invite)
+        {
+            using var connection = _connectionFactory.GetConnection();
+
+            await connection.ExecuteAsync(@"
+UPDATE [dbo].[ColaborationInvites]
+SET UTCExpirationDate = @expirationDate,
+    InviteStatus = @status
+WHERE IdUser = @idUser
+    AND Email = @email",
+            new
+            {
+                @idUser = invite.IdUser,
+                @email = invite.Email,
+                @expirationDate = invite.ExpirationDate.ToString(DateFormat),
+                @status = invite.InviteStatus,
+            });
         }
     }
 }

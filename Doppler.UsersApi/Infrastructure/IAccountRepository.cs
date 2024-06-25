@@ -11,5 +11,7 @@ namespace Doppler.UsersApi.Infrastructure
         Task<ContactInformation> GetContactInformation(string accountName);
         Task UpdateContactInformation(string accountName, ContactInformation contactInformation);
         Task<List<InvitationInformation>> GetUserInvitations(string email, CancellationToken cancellationToken = default);
+        Task CreateCollaborationInvite(CollaborationInvite invite);
+        Task UpdateCollaborationInvite(CollaborationInvite invite);
     }
 }
