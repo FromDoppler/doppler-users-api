@@ -1,9 +1,12 @@
 using Doppler.UsersApi.Infrastructure;
 using Doppler.UsersApi.Model;
+using Doppler.UsersApi.Model.Enums;
+using Doppler.UsersApi.Services;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,15 +20,18 @@ namespace Doppler.UsersApi.Controllers
         private readonly ILogger _logger;
         private readonly IAccountRepository _accountRepository;
         private readonly IValidator<ContactInformation> _validator;
+        private readonly IAccountService _accountService;
 
         public AccountController(
             ILogger<FeatureController> logger,
             IAccountRepository accountRepository,
-            IValidator<ContactInformation> validator)
+            IValidator<ContactInformation> validator,
+            IAccountService accountService)
         {
             _logger = logger;
             _accountRepository = accountRepository;
             _validator = validator;
+            _accountService = accountService;
         }
 
         [HttpGet("/accounts/{accountName}/contact-information")]
@@ -68,6 +74,35 @@ namespace Doppler.UsersApi.Controllers
             }
 
             return new NotFoundResult();
+        }
+
+        [HttpPost("/accounts/{accountName}/user-invitations")]
+        public async Task<IActionResult> SendUserInvitation(string accountName, [FromBody] CollaborationInvitationModel invitation, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var userInvitations = await _accountRepository.GetUserInvitations(accountName);
+
+                var invite = userInvitations.Where(x => x.Email == invitation.Email)
+                    .FirstOrDefault();
+
+                var collaborationInvite = new CollaborationInvite
+                {
+                    IdUser = invite?.IdUser ?? invitation.IdUser,
+                    Email = invite?.Email ?? invitation.Email,
+                    CreationDate = invite?.InvitationDate ?? DateTime.UtcNow,
+                    ExpirationDate = invite?.ExpirationDate ?? DateTime.UtcNow.AddDays(1),
+                    InviteStatus = invite?.InvitationStatus ?? (int)InviteStatusEnum.PENDING
+                };
+
+                _accountService.SendCollaborationInvite(collaborationInvite, invite == null);
+            }
+            catch (Exception ex)
+            {
+                return new BadRequestObjectResult(ex.Message);
+            }
+
+            return new OkObjectResult("Success");
         }
     }
 }
