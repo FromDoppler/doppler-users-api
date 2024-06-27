@@ -2,6 +2,7 @@ using System;
 using Doppler.UsersApi.Encryption;
 using Doppler.UsersApi.Infrastructure;
 using Doppler.UsersApi.Model;
+using Doppler.UsersApi.Services.EmailSender;
 using Doppler.UsersApi.Validators;
 using FluentValidation;
 using Microsoft.AspNetCore.Builder;
@@ -28,6 +29,7 @@ namespace Doppler.UsersApi
             services.Configure<DopplerDatabaseSettings>(Configuration.GetSection(nameof(DopplerDatabaseSettings)));
             services.AddDopplerSecurity();
             services.AddRepositories();
+            services.AddRelayEmailSender(Configuration);
             services.AddControllers();
             services.AddCors();
             services.AddSwaggerGen(c =>
