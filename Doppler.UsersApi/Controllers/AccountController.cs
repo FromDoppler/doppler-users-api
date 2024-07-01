@@ -91,7 +91,7 @@ namespace Doppler.UsersApi.Controllers
                     IdUser = invite?.IdUser ?? invitation.IdUser,
                     Email = invite?.Email ?? invitation.Email,
                     CreationDate = invite?.InvitationDate ?? DateTime.UtcNow,
-                    ExpirationDate = invite?.ExpirationDate ?? DateTime.UtcNow.AddDays(1),
+                    ExpirationDate = invite?.ExpirationDate ?? DateTime.UtcNow,
                     InviteStatus = invite?.InvitationStatus ?? (int)InviteStatusEnum.PENDING
                 };
 

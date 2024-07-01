@@ -110,11 +110,11 @@ WHERE u.Email = @email",
             return result.ToList();
         }
 
-        public async Task CreateCollaborationInvite(CollaborationInvite invite)
+        public async Task<int> CreateCollaborationInvite(CollaborationInvite invite)
         {
             using var connection = _connectionFactory.GetConnection();
 
-            await connection.ExecuteAsync(@"
+            return await connection.ExecuteAsync(@"
 INSERT INTO [dbo].[ColaborationInvites]
 VALUES(@idUser, @email, NULL, @creationDate, @expirationDate, NULL, @status,0)",
             new
@@ -127,11 +127,11 @@ VALUES(@idUser, @email, NULL, @creationDate, @expirationDate, NULL, @status,0)",
             });
         }
 
-        public async Task UpdateCollaborationInvite(CollaborationInvite invite)
+        public async Task<int> UpdateCollaborationInvite(CollaborationInvite invite)
         {
             using var connection = _connectionFactory.GetConnection();
 
-            await connection.ExecuteAsync(@"
+            return await connection.ExecuteAsync(@"
 UPDATE [dbo].[ColaborationInvites]
 SET UTCExpirationDate = @expirationDate,
     InviteStatus = @status

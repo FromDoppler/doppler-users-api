@@ -25,7 +25,7 @@ namespace Doppler.UsersApi.Services
                 invite.ExpirationDate = DateTime.UtcNow.AddSeconds(_settings.InvitationExpirationSeconds);
                 var response = _accountRepository.CreateCollaborationInvite(invite);
 
-                if(response.Result == 0)
+                if (response.Result == 0)
                 {
                     throw new Exception("Failed to create invitation.");
                 }
