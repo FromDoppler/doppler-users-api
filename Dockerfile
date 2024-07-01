@@ -10,7 +10,7 @@ WORKDIR /src
 COPY ./*.sh ./
 RUN shellcheck -e SC1091,SC1090 ./*.sh
 
-FROM mcr.microsoft.com/dotnet/sdk:6.0.423-bullseye-slim AS restore
+FROM mcr.microsoft.com/dotnet/sdk:7.0.410-bullseye-slim AS restore
 WORKDIR /src
 COPY ./*.sln ./
 COPY */*.csproj ./
@@ -35,7 +35,7 @@ RUN dotnet test
 FROM build AS publish
 RUN dotnet publish "./Doppler.UsersApi/Doppler.UsersApi.csproj" -c Release -o /app/publish
 
-FROM mcr.microsoft.com/dotnet/aspnet:6.0.31-bullseye-slim AS final
+FROM mcr.microsoft.com/dotnet/aspnet:7.0.20-bullseye-slim AS final
 WORKDIR /app
 EXPOSE 80
 COPY --from=publish /app/publish .
