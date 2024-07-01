@@ -2,6 +2,7 @@ using System;
 using Doppler.UsersApi.Encryption;
 using Doppler.UsersApi.Infrastructure;
 using Doppler.UsersApi.Model;
+using Doppler.UsersApi.Services;
 using Doppler.UsersApi.Services.EmailSender;
 using Doppler.UsersApi.Validators;
 using FluentValidation;
@@ -27,6 +28,7 @@ namespace Doppler.UsersApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<DopplerDatabaseSettings>(Configuration.GetSection(nameof(DopplerDatabaseSettings)));
+            services.Configure<AccountServiceSettings>(Configuration.GetSection(nameof(AccountServiceSettings)));
             services.AddDopplerSecurity();
             services.AddRepositories();
             services.AddRelayEmailSender(Configuration);
