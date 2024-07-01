@@ -104,14 +104,16 @@ namespace Doppler.UsersApi.Test
 
             var dbResponse = new InvitationInformation
             {
+                IdUser = 1,
                 Email = "test1@test.com",
                 Firstname = "Test First Name",
                 Lastname = "Test Last Name",
                 InvitationDate = currentDate,
+                ExpirationDate = currentDate,
                 InvitationStatus = 1
             };
 
-            var expectedContent = string.Format("[{{\"email\":\"test1@test.com\",\"firstname\":\"Test First Name\",\"lastname\":\"Test Last Name\",\"invitationDate\":\"{0}\",\"invitationStatus\":1}}]", currentDate.ToString("yyyy-MM-ddTHH:mm:ss.fffffff"));
+            var expectedContent = string.Format("[{{\"idUser\":1,\"email\":\"test1@test.com\",\"firstname\":\"Test First Name\",\"lastname\":\"Test Last Name\",\"invitationDate\":\"{0}\",\"expirationDate\":\"{0}\",\"invitationStatus\":1}}]", currentDate.ToString("yyyy-MM-ddTHH:mm:ss.fffffff"));
 
             var mockConnection = new Mock<DbConnection>();
 
